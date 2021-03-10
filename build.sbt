@@ -10,11 +10,11 @@ def getPackageSetting = Seq(
   organizationName := "p2m2",
   organizationHomepage := Some(url("https://www6.inrae.fr/p2m2")),
   licenses := Seq("MIT License" -> url("http://www.opensource.org/licenses/mit-license.php")),
-  homepage := Some(url("https://github.com/p2m2/rdfxml-streaming-parser-facade")),
+  homepage := Some(url("https://github.com/p2m2")),
   description := "Scalajs Facade for rdfxml-streaming-parser",
   scmInfo := Some(
     ScmInfo(
-      url("https://github.com/p2m2/rdfxml-streaming-parser-facade"),
+      url("https://github.com/p2m2/comunica-actor-init-sparql-rdfjs-facade"),
       "scm:git@github.com:p2m2/comunica-actor-init-sparql-rdfjs-facade.git"
     )
   ),
