@@ -1,5 +1,6 @@
 package com.github.p2m2.facade
 
+import io.scalajs.nodejs.process.Process.stdout
 import utest._
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -21,7 +22,7 @@ object newEngineTest extends TestSuite {
   }
   val tests = Tests {
 
-    test("newEngine bindings - N3Store ") {
+    test("newEngine bindings - N3Store - bindings ") {
 
       Comunica.newEngine().query("SELECT * {  ?s ?p ?o . VALUES ?o { <http://dbpedia.org/resource/Belgium> } . } LIMIT 100",
         QueryEngineOptions(sources = List(initStore())))
@@ -34,6 +35,39 @@ object newEngineTest extends TestSuite {
           })
         }
         case Failure(t) => println("An error has occurred: " + t.getMessage)
+      }
+
+      test("newEngine bindings - N3Store - Construct - quads ") {
+
+        Comunica.newEngine().query("CONSTRUCT WHERE { ?s ?p ?o  } LIMIT 100",
+          QueryEngineOptions(sources = List(initStore())))
+          .toFuture onComplete {
+          case Success(results: IQueryResult) => {
+            results.quads().toFuture.foreach(r => {
+              r.map(sol => println(sol.subject.value))
+              r.map(sol => println(sol.predicate.value))
+              r.map(sol => println(sol.`object`.value))
+              r.map(sol => println(sol.graph.value))
+            })
+          }
+          case Failure(t) => println("An error has occurred: " + t.getMessage)
+        }
+      }
+
+      test("Serializing to a specific result format") {
+
+        Comunica.newEngine().query("SELECT * {  ?s ?p ?o . VALUES ?o { <http://dbpedia.org/resource/Belgium> } . } LIMIT 100",
+          QueryEngineOptions(sources = List(initStore())))
+          .toFuture onComplete {
+          case Success(results: IQueryResult) => {
+            val data = Comunica.newEngine().resultToString(results,"application/sparql-results+json")
+            data.toFuture onComplete {
+              case Success(r) => r.data.pipe( stdout )
+              case Failure(t) => println("message :"+t)
+            }
+          }
+          case Failure(t) => println("An error has occurred: " + t.getMessage)
+        }
       }
 
       test("newEngine bindings - N3Store + file ") {

@@ -9,9 +9,9 @@ import io.scalajs.nodejs.stream
 
 import scala.language.implicitConversions
 import scala.scalajs.js
+import scala.scalajs.js.JSConverters._
 import scala.scalajs.js.annotation.JSImport
 import scala.scalajs.js.|
-import js.JSConverters._
 
 object Comunica {
   @js.native
@@ -30,7 +30,7 @@ object Comunica {
 class ActorInitSparql extends js.Object {
   def invalidateHttpCache(url : String = null) : Unit = js.native
   def query( request : String , context : QueryEngineOptions = null) : js.Promise[IQueryResult] = js.native
-  def resultToString(queryResult : IQueryResult , mediaType:ResultFormat.Value ) : Unit = js.native
+  def resultToString(queryResult : IQueryResult , mediaType: String ) : js.Promise[IActorSparqlSerializeOutput] = js.native
 }
 
 /**
@@ -39,7 +39,7 @@ class ActorInitSparql extends js.Object {
   IQueryResultBoolean,
  */
 @js.native
-@JSImport("@comunica/actor-init-sparql-rdfjs", "IQueryResult")
+@JSImport("@comunica/actor-init-sparql", "IQueryResult")
 class IQueryResult extends js.Object {
   //type,bindingsStream,metadata,variables,canContainUndefs,bindings,context
   //val booleanResult : Boolean = js.native /* ask */
@@ -49,7 +49,14 @@ class IQueryResult extends js.Object {
   val context : js.Object = js.native
   val bindingsStream : stream.Transform = js.native
   def bindings() : js.Promise[js.Array[js.Map[String,Term]]] = js.native
+  def quads() : js.Promise[js.Array[Quad]] = js.native
   //val quadStream : stream.Transform  = js.native
+}
+
+@js.native
+@JSImport("@comunica/actor-init-sparql", "IActorSparqlSerializeOutput")
+class IActorSparqlSerializeOutput extends js.Object {
+  val data : stream.Readable = js.native
 }
 
 /**
