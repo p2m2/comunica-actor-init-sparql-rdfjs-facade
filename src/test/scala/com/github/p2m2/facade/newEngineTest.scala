@@ -4,6 +4,7 @@ import io.scalajs.nodejs.process.Process.stdout
 import utest._
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Promise
 import scala.language.implicitConversions
 import scala.scalajs.js
 import scala.util.{Failure, Success}
@@ -65,6 +66,52 @@ object newEngineTest extends TestSuite {
               case Success(r) => r.data.pipe( stdout )
               case Failure(t) => println("message :"+t)
             }
+          }
+          case Failure(t) => println("An error has occurred: " + t.getMessage)
+        }
+      }
+
+      test("Serializing to a specific result format 2 ") {
+
+        Comunica.newEngine().query("SELECT * {  ?s ?p ?o . VALUES ?o { <http://dbpedia.org/resource/Belgium> } . } LIMIT 100",
+          QueryEngineOptions(sources = List(initStore())))
+          .toFuture onComplete {
+          case Success(results: IQueryResult) => {
+            val data = Comunica.newEngine().resultToString(results,"application/sparql-results+json")
+            data.toFuture onComplete {
+              case Success(r) => r.data.on( "data" , (chunk : js.Object) => {
+                println("chunk :" + chunk.toString)
+              } )
+              case Failure(t) => println("message :"+t)
+            }
+          }
+          case Failure(t) => println("An error has occurred: " + t.getMessage)
+        }
+      }
+
+      test("Serializing to a specific result format 3 ") {
+
+        Comunica.newEngine().query("SELECT * {  ?s ?p ?o . VALUES ?o { <http://dbpedia.org/resource/Belgium> } . } LIMIT 100",
+          QueryEngineOptions(sources = List(initStore())))
+          .toFuture onComplete {
+          case Success(results: IQueryResult) => {
+            Comunica.newEngine().resultToString(results,"application/sparql-results+json")
+              .toFuture.map( v => {
+              val p = Promise[String]()
+              var sparql_results = ""
+              println("HELLO WORLD !!!!")
+              v.data.on("data", (chunk: js.Object) => {
+                println(chunk)
+                sparql_results += chunk.toString
+              }).on("end", () => {
+                p success sparql_results
+              }).on("error", (error: String) => {
+                p failure js.JavaScriptException(error)
+              })
+              p.future
+            }).recover(error => {
+              throw js.JavaScriptException(error.toString)
+            })
           }
           case Failure(t) => println("An error has occurred: " + t.getMessage)
         }
