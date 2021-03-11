@@ -78,7 +78,7 @@ trait QueryEngineOptions extends js.Object {
 object QueryEngineOptions {
   def apply(
              sources                : List[String | SourceDefinitionNewQueryEngine | N3.Store] = List(),
-             lenient                : Boolean = true,
+             lenient                : Boolean = false,
              initialBindings        : js.UndefOr[Bindings] = js.undefined,
              baseIRI                : js.UndefOr[String] = js.undefined,
              date                   : js.UndefOr[js.Date] = js.undefined,
