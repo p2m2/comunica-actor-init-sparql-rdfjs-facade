@@ -1,10 +1,10 @@
 import sbt.Keys.{testFrameworks, version}
 
-lazy val comunica_version = "1.19.2"
+lazy val comunica_version = "1.21.1"
 
 def getPackageSetting = Seq(
   name := "comunica-actor-init-sparql-rdfjs",
-  version :=  "1.0.0",
+  version :=  "1.21.1",
   scalaVersion := "2.13.5",
   organization := "com.github.p2m2",
   organizationName := "p2m2",
@@ -59,17 +59,17 @@ lazy val root = project.in(file(".")).
   settings(inConfig(IntegrationTest)(ScalaJSPlugin.testConfigSettings): _*).
   settings(
     getPackageSetting,
-    scalaJSLinkerConfig in (Compile, fastOptJS ) ~= {
+    Compile / fastOptJS / scalaJSLinkerConfig ~= {
       _.withOptimizer(false)
         .withPrettyPrint(true)
         .withSourceMap(true)
     },
-    scalaJSLinkerConfig in (Compile, fullOptJS) ~= {
+    Compile / fullOptJS / scalaJSLinkerConfig ~= {
       _.withSourceMap(false)
         .withModuleKind(ModuleKind.CommonJSModule)
     },
     webpackBundlingMode := BundlingMode.LibraryAndApplication(),
-    npmDependencies in Compile ++= Seq(
+    Compile / npmDependencies ++= Seq(
       "@comunica/actor-init-sparql-rdfjs" -> comunica_version,
       "@comunica/bus-query-operation" -> comunica_version ,
       "@comunica/logger-pretty" -> comunica_version,
