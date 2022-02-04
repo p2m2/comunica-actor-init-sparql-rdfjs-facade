@@ -1,10 +1,13 @@
 import sbt.Keys.{testFrameworks, version}
 
-lazy val comunica_version = "1.21.1"
+lazy val comunica_version = "1.22.3"
+lazy val comunica_version_http_proxy = "1.22.1"
+lazy val comunica_version_bus_query_operation = "1.22.0"
+lazy val comunica_version_logger_pretty = "1.22.0"
 
 def getPackageSetting = Seq(
   name := "comunica-actor-init-sparql-rdfjs",
-  version :=  "1.21.1",
+  version :=  scala.util.Properties.envOrElse("PROG_VERSION", comunica_version ),
   scalaVersion := "2.13.5",
   organization := "com.github.p2m2",
   organizationName := "p2m2",
@@ -70,17 +73,20 @@ lazy val root = project.in(file(".")).
     },
     webpackBundlingMode := BundlingMode.LibraryAndApplication(),
     Compile / npmDependencies ++= Seq(
-      "@comunica/actor-init-sparql-rdfjs" -> comunica_version,
-      "@comunica/bus-query-operation" -> comunica_version ,
-      "@comunica/logger-pretty" -> comunica_version,
-      "@comunica/actor-http-proxy" -> comunica_version ),
+      "@comunica/actor-init-sparql" -> comunica_version,
+      "@comunica/bus-query-operation" -> comunica_version_bus_query_operation ,
+      "@comunica/logger-pretty" -> comunica_version_logger_pretty,
+      "@comunica/actor-http-proxy" -> comunica_version_http_proxy ),
     libraryDependencies ++= Seq(
-      "net.exoego" %%% "scala-js-nodejs-v14" % "0.13.0",
-      "com.github.p2m2" %%% "data-model-rdfjs" % "1.0.0",
-      "com.github.p2m2" %%% "n3js" % "1.0.1",
-      "com.lihaoyi" %%% "utest" % "0.7.7" % "test"
+      "net.exoego" %%% "scala-js-nodejs-v14" % "0.14.0",
+      "com.github.p2m2" %%% "data-model-rdfjs" % "1.0.1",
+      "com.github.p2m2" %%% "n3js" % "1.13.0",
+      "com.lihaoyi" %%% "utest" % "0.7.11" % "test"
     ) ,
-    testFrameworks += new TestFramework("utest.runner.Framework")
+    testFrameworks += new TestFramework("utest.runner.Framework"),
+    coverageMinimumStmtTotal := 20,
+    coverageFailOnMinimum := false,
+    coverageHighlighting := true
   )
 
 Global / onChangedBuildSource := ReloadOnSourceChanges
