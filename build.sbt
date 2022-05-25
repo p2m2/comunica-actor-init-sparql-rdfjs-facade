@@ -4,7 +4,7 @@ lazy val comunica_version = "2.2.0"
 
 def getPackageSetting = Seq(
   name := "comunica-query-sparql",
-  version :=  scala.util.Properties.envOrElse("PROG_VERSION", comunica_version ),
+  version :=  scala.util.Properties.envOrElse("PROG_VERSION", comunica_version),
   scalaVersion := "2.13.8",
   organization := "com.github.p2m2",
   organizationName := "p2m2",
@@ -72,6 +72,7 @@ lazy val root = project.in(file(".")).
     Compile / npmDependencies ++= Seq(
       "@comunica/query-sparql" ->  comunica_version),
     libraryDependencies ++= Seq(
+      ("org.scala-js" %%% "scalajs-java-securerandom" % "1.0.0").cross(CrossVersion.for3Use2_13),
       "org.scala-js" %%% "scala-js-macrotask-executor" % "1.0.0",
       "net.exoego" %%% "scala-js-nodejs-v14" % "0.14.0",
       "com.github.p2m2" %%% "n3js" % "1.13.0",
