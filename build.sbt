@@ -3,7 +3,7 @@ import sbt.Keys.{testFrameworks, version}
 lazy val comunica_version = "2.2.0"
 
 def getPackageSetting = Seq(
-  name := "comunica-actor-init-sparql-rdfjs",
+  name := "comunica-query-sparql",
   version :=  scala.util.Properties.envOrElse("PROG_VERSION", comunica_version ),
   scalaVersion := "2.13.8",
   organization := "com.github.p2m2",
@@ -14,8 +14,8 @@ def getPackageSetting = Seq(
   description := "Scalajs Facade for @comunica/query-sparql",
   scmInfo := Some(
     ScmInfo(
-      url("https://github.com/p2m2/comunica-actor-init-sparql-rdfjs-facade"),
-      "scm:git@github.com:p2m2/comunica-actor-init-sparql-rdfjs-facade.git"
+      url("https://github.com/p2m2/facade-comunica-query-sparql"),
+      "scm:git@github.com:p2m2/facade-comunica-query-sparql.git"
     )
   ),
   developers := List(
