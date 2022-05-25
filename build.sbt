@@ -1,20 +1,17 @@
 import sbt.Keys.{testFrameworks, version}
 
-lazy val comunica_version = "1.22.3"
-lazy val comunica_version_http_proxy = "1.22.1"
-lazy val comunica_version_bus_query_operation = "1.22.0"
-lazy val comunica_version_logger_pretty = "1.22.0"
+lazy val comunica_version = "2.2.0"
 
 def getPackageSetting = Seq(
   name := "comunica-actor-init-sparql-rdfjs",
   version :=  scala.util.Properties.envOrElse("PROG_VERSION", comunica_version ),
-  scalaVersion := "2.13.5",
+  scalaVersion := "2.13.8",
   organization := "com.github.p2m2",
   organizationName := "p2m2",
   organizationHomepage := Some(url("https://www6.inrae.fr/p2m2")),
   licenses := Seq("MIT License" -> url("http://www.opensource.org/licenses/mit-license.php")),
   homepage := Some(url("https://github.com/p2m2")),
-  description := "Scalajs Facade for rdfxml-streaming-parser",
+  description := "Scalajs Facade for @comunica/query-sparql",
   scmInfo := Some(
     ScmInfo(
       url("https://github.com/p2m2/comunica-actor-init-sparql-rdfjs-facade"),
@@ -73,13 +70,10 @@ lazy val root = project.in(file(".")).
     },
     webpackBundlingMode := BundlingMode.LibraryAndApplication(),
     Compile / npmDependencies ++= Seq(
-      "@comunica/actor-init-sparql" -> comunica_version,
-      "@comunica/bus-query-operation" -> comunica_version_bus_query_operation ,
-      "@comunica/logger-pretty" -> comunica_version_logger_pretty,
-      "@comunica/actor-http-proxy" -> comunica_version_http_proxy ),
+      "@comunica/query-sparql" ->  comunica_version),
     libraryDependencies ++= Seq(
+      "org.scala-js" %%% "scala-js-macrotask-executor" % "1.0.0",
       "net.exoego" %%% "scala-js-nodejs-v14" % "0.14.0",
-      "com.github.p2m2" %%% "data-model-rdfjs" % "1.0.1",
       "com.github.p2m2" %%% "n3js" % "1.13.0",
       "com.lihaoyi" %%% "utest" % "0.7.11" % "test"
     ) ,

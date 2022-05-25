@@ -3,7 +3,6 @@
  */
 package com.github.p2m2.facade
 
-import com.github.p2m2.facade.QueryFormat.QueryFormat
 import com.github.p2m2.facade.SourceType.SourceType
 import io.scalajs.nodejs.stream
 
@@ -13,50 +12,11 @@ import scala.scalajs.js.JSConverters._
 import scala.scalajs.js.annotation.JSImport
 import scala.scalajs.js.|
 
-object Comunica {
-  @js.native
-  @JSImport("@comunica/actor-init-sparql", "newEngine")
-  def newEngine() : ActorInitSparql = js.native
-
-  @js.native
-  @JSImport("@comunica/actor-init-sparql", "newEngineDynamic")
-  def newEngineDynamic(config : js.Object) : js.Promise[ActorInitSparql] = js.native
-
-}
-
 @js.native
-//@JSImport("@comunica/actor-init-sparql/lib/ActorInitSparql", "ActorInitSparql-browser")
-@JSImport("@comunica/actor-init-sparql/lib/ActorInitSparql", "ActorInitSparql")
-class ActorInitSparql extends js.Object {
-  def invalidateHttpCache(url : String = null) : Unit = js.native
-  def query( request : String , context : QueryEngineOptions = null) : js.Promise[IQueryResult] = js.native
-  def resultToString(queryResult : IQueryResult , mediaType: String ) : js.Promise[IActorSparqlSerializeOutput] = js.native
-}
-
-/**
- *  IQueryResultBindings,
-  IQueryResultQuads,
-  IQueryResultBoolean,
- */
-@js.native
-@JSImport("@comunica/actor-init-sparql", "IQueryResult")
-class IQueryResult extends js.Object {
-  //type,bindingsStream,metadata,variables,canContainUndefs,bindings,context
-  //val booleanResult : Boolean = js.native /* ask */
-  val `type` : String = js.native //bindings
-  def metadata() : js.Any = js.native
-  val variables : js.Array[String] = js.native
-  val context : js.Object = js.native
-  val bindingsStream : stream.Transform = js.native
-  def bindings() : js.Promise[js.Array[js.Map[String,Term]]] = js.native
-  def quads() : js.Promise[js.Array[Quad]] = js.native
-  //val quadStream : stream.Transform  = js.native
-}
-
-@js.native
-@JSImport("@comunica/actor-init-sparql", "IActorSparqlSerializeOutput")
-class IActorSparqlSerializeOutput extends js.Object {
-  val data : stream.Readable = js.native
+@JSImport("@comunica/query-sparql", "QueryEngine")
+class QueryEngine extends js.Object {
+  def queryBindings( request : String , context : QueryEngineOptions = null) : js.Promise[stream.Transform] = js.native
+  def queryQuads( request : String , context : QueryEngineOptions = null) : js.Promise[stream.Transform] = js.native
 }
 
 /**
@@ -67,26 +27,27 @@ trait QueryEngineOptions extends js.Object {
   val lenient                : js.UndefOr[Boolean] = js.undefined
   val initialBindings        : js.UndefOr[Bindings] = js.undefined
   val baseIRI                : js.UndefOr[String] = js.undefined
-  val date                   : js.UndefOr[js.Date] = js.undefined
+  val datetime               : js.UndefOr[js.Date] = js.undefined
   val httpIncludeCredentials : js.UndefOr[Boolean] = js.undefined
   val httpProxyHandler       : js.UndefOr[ProxyHandlerStatic] = js.undefined
   val httpAuth               : js.UndefOr[String] = js.undefined /* 'username:password' */
   val log                    : js.UndefOr[LoggerPretty] = js.undefined
-  val queryFormat            : js.UndefOr[QueryFormat.Value] = js.undefined
+  val queryFormat            : js.UndefOr[QueryFormatType] = js.undefined
+  val explain                : js.UndefOr[QueryFormat.Value] = js.undefined
 }
 
 object QueryEngineOptions {
   def apply(
              sources                : List[String | SourceDefinitionNewQueryEngine | N3.Store] = List(),
              lenient                : Boolean = false,
-             initialBindings        : js.UndefOr[Bindings] = js.undefined,
+             initialBindings        : js.UndefOr[Bindings] = new BindingsFactory().bindings(),
              baseIRI                : js.UndefOr[String] = js.undefined,
              date                   : js.UndefOr[js.Date] = js.undefined,
              httpIncludeCredentials : js.UndefOr[Boolean] = js.undefined,
              httpProxyHandler       : js.UndefOr[ProxyHandlerStatic] = js.undefined,
              httpAuth               : js.UndefOr[String] = js.undefined,
              log                    : js.UndefOr[LoggerPretty] = js.undefined,
-             queryFormat            : QueryFormat.Value = null
+             queryFormat            : QueryFormatType = QueryFormatType("sparql","1.1")
            ): QueryEngineOptions = js.Dynamic.literal(
     "sources" -> (sources match {
       case l if l.length>0  => l.toJSArray
@@ -100,15 +61,12 @@ object QueryEngineOptions {
     "httpProxyHandler" ->  httpProxyHandler,
     "httpAuth" ->  httpAuth,
     "log" ->  log,
-    "queryFormat" ->  (queryFormat match {
-      case s : QueryFormat => s.toString
-      case null => js.undefined
-    })
+    "queryFormat" ->  queryFormat
   ).asInstanceOf[QueryEngineOptions]
 }
 
 trait SourceDefinitionNewQueryEngine extends js.Object {
-  val `type`            : js.UndefOr[SourceType.Value] = js.undefined
+  val `type`           : js.UndefOr[SourceType.Value] = js.undefined
   val value            : js.UndefOr[String] = js.undefined
 }
 
@@ -123,6 +81,21 @@ object SourceDefinitionNewQueryEngine {
 }
 
 
+trait QueryFormatType extends js.Object {
+  val language               : js.UndefOr[String] = js.undefined
+  val version                : js.UndefOr[String] = js.undefined
+}
+
+object QueryFormatType {
+  def apply(
+             language : String,
+             version : String
+           ) : QueryFormatType = js.Dynamic.literal(
+    language = language,
+    version = version
+  ).asInstanceOf[QueryFormatType]
+}
+
 object SourceType extends Enumeration {
   type SourceType = Value
   val hypermedia, file, sparql, rdfjsSource, hdtFile, ostrichFile = Value
@@ -131,6 +104,7 @@ object SourceType extends Enumeration {
 object QueryFormat extends Enumeration {
   type QueryFormat = Value
   val sparql,graphql = Value
+
 }
 
 object ResultFormat extends Enumeration {
@@ -140,16 +114,21 @@ object ResultFormat extends Enumeration {
   `application/n-triples`, `text/n3`, `application/ld+json` = Value
 }
 
+@js.native
+@JSImport("@comunica/bindings-factory", "BindingsFactory")
+class BindingsFactory() extends js.Object {
+  def bindings() : Bindings = js.native
+}
 
 @js.native
-@JSImport("@comunica/bus-query-operation", "Bindings")
-class Bindings(options : js.Object) extends js.Object
-/*
-new Bindings({
-    '?template1': factory.literal('Value1'),
-    '?template2': factory.literal('Value2'),
-  })
- */
+@JSImport("@comunica/bindings-factory", "Bindings")
+class Bindings(
+                val `type` : String = "bindings",
+                val dataFactory : BindingsFactory = new BindingsFactory(),
+                val entries : js.Object) extends js.Object {
+  def has(key:String) : Boolean = js.native
+  def get(key:String) : Term = js.native
+}
 
 @js.native
 @JSImport("@comunica/logger-pretty", "LoggerPretty")
