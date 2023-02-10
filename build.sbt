@@ -1,6 +1,6 @@
 import sbt.Keys.{testFrameworks, version}
 
-lazy val comunica_version = "2.2.0"
+lazy val comunica_version = "2.6.6"
 
 def getPackageSetting = Seq(
   name := "comunica-query-sparql",
@@ -70,7 +70,9 @@ lazy val root = project.in(file(".")).
     },
     webpackBundlingMode := BundlingMode.LibraryAndApplication(),
     Compile / npmDependencies ++= Seq(
-      "@comunica/query-sparql" ->  comunica_version),
+      "@comunica/query-sparql" ->  comunica_version,
+     // "@comunica/actor-rdf-serialize-shaclc"->  "2.6.0"
+    ),
     libraryDependencies ++= Seq(
       ("org.scala-js" %%% "scalajs-java-securerandom" % "1.0.0").cross(CrossVersion.for3Use2_13),
       "org.scala-js" %%% "scala-js-macrotask-executor" % "1.0.0",
