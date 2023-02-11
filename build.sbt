@@ -5,7 +5,7 @@ lazy val comunica_version = "2.6.6"
 def getPackageSetting = Seq(
   name := "comunica-query-sparql",
   version :=  scala.util.Properties.envOrElse("PROG_VERSION", comunica_version),
-  scalaVersion := "2.13.8",
+  scalaVersion := "2.13.10",
   organization := "com.github.p2m2",
   organizationName := "p2m2",
   organizationHomepage := Some(url("https://www6.inrae.fr/p2m2")),
@@ -14,8 +14,8 @@ def getPackageSetting = Seq(
   description := "Scalajs Facade for @comunica/query-sparql",
   scmInfo := Some(
     ScmInfo(
-      url("https://github.com/p2m2/facade-comunica-query-sparql"),
-      "scm:git@github.com:p2m2/facade-comunica-query-sparql.git"
+      url("https://github.com/p2m2/facade-scalajs-comunica-query-sparql"),
+      "scm:git@github.com:p2m2/facade-scalajs-comunica-query-sparql.git"
     )
   ),
   developers := List(

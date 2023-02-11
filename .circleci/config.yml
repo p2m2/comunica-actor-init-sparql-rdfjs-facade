@@ -67,7 +67,7 @@ executors:
   openjdk:
     working_directory: ~/repo
     docker:
-      - image: cimg/openjdk:17.0.2
+      - image: cimg/openjdk:19.0.2
         auth:
           username: ${DOCKER_USER}
           password: ${DOCKER_PASS}
@@ -121,7 +121,7 @@ jobs:
             # fallback to using the latest cache if no exact match is found
             - v1-dependencies-
       - node/install:
-          node-version: '18.1'
+          node-version: '19.6'
       - run:
           name: Test and Coverage
           command: |
