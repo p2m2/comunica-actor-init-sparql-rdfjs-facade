@@ -17,7 +17,7 @@
 #
 version: 2.1
 orbs:
-  node: circleci/node@5.0.2
+  node: circleci/node@5.1.0
 workflows:
   compile-workflow:
     jobs:
@@ -67,7 +67,7 @@ executors:
   openjdk:
     working_directory: ~/repo
     docker:
-      - image: cimg/openjdk:17.0.2
+      - image: cimg/openjdk:19.0.2
         auth:
           username: ${DOCKER_USER}
           password: ${DOCKER_PASS}
@@ -121,7 +121,7 @@ jobs:
             # fallback to using the latest cache if no exact match is found
             - v1-dependencies-
       - node/install:
-          node-version: '18.1'
+          node-version: '19.6'
       - run:
           name: Test and Coverage
           command: |
@@ -155,7 +155,7 @@ jobs:
             export PROG_VERSION="${CIRCLE_BRANCH}-SNAPSHOT"
             echo "Importing key"
             echo -e "$GPG_KEY" | gpg --import
-            sbt publish
+            sbt publishSigned
 
   publish_tag_to_sonatype_stagge_for_release:
     executor: openjdk
@@ -173,4 +173,4 @@ jobs:
             export PROG_VERSION="${CIRCLE_TAG}"
             echo "Importing key"
             echo -e "$GPG_KEY" | gpg --import
-            sbt publish
+            sbt publishSigned
