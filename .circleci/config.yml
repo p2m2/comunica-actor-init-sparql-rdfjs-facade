@@ -152,6 +152,7 @@ jobs:
       - run:
           name: Snapshot publication
           command: |
+            export GPG_TTY=$(tty)
             export PROG_VERSION="${CIRCLE_BRANCH}-SNAPSHOT"
             echo "Importing key"
             echo -e "$GPG_KEY" | gpg --import
@@ -170,6 +171,7 @@ jobs:
       - run:
           name: Release publication
           command: |
+            export GPG_TTY=$(tty)
             export PROG_VERSION="${CIRCLE_TAG}"
             echo "Importing key"
             echo -e "$GPG_KEY" | gpg --import
