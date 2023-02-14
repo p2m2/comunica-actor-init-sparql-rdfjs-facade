@@ -17,8 +17,15 @@ import scala.scalajs.js.|
 class QueryEngine extends js.Object {
   def queryBindings( request : String , context : QueryEngineOptions = null) : js.Promise[stream.Transform] = js.native
   def queryQuads( request : String , context : QueryEngineOptions = null) : js.Promise[stream.Transform] = js.native
+  def query( request : String , context : QueryEngineOptions = null) : js.Promise[stream.Transform] = js.native
+  def resultToString(s :stream.Transform,mediaType: String ) : js.Promise[IActorSparqlSerializeOutput] = js.native
 }
 
+@js.native
+@JSImport("@comunica/query-sparql", "IActorSparqlSerializeOutput")
+class IActorSparqlSerializeOutput extends js.Object {
+  val data : stream.Readable = js.native
+}
 /**
  * https://comunica.dev/docs/query/advanced/context/
  */
@@ -50,7 +57,7 @@ object QueryEngineOptions {
              queryFormat            : QueryFormatType = QueryFormatType("sparql","1.1")
            ): QueryEngineOptions = js.Dynamic.literal(
     "sources" -> (sources match {
-      case l if l.length>0  => l.toJSArray
+      case l if l.nonEmpty  => l.toJSArray
       case _ => js.undefined
     }),
     "lenient" ->  lenient,
