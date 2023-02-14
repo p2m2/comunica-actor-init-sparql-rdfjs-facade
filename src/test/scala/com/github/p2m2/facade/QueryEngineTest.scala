@@ -1,10 +1,12 @@
 package com.github.p2m2.facade
 
+import io.scalajs.nodejs.process.Process.stdout
 import org.scalajs.macrotaskexecutor.MacrotaskExecutor.Implicits._
 import utest.{assert, _}
 
+import scala.concurrent.Promise
 import scala.language.implicitConversions
-import scala.scalajs.js.JSConverters._
+import scala.scalajs.js
 import scala.util.{Failure, Success}
 
 object QueryEngineTest extends TestSuite {
@@ -19,7 +21,7 @@ object QueryEngineTest extends TestSuite {
       DataFactory.namedNode("http://dbpedia.org/resource/Ghent")))
     store
   }
-  val tests = Tests {
+  val tests: Tests = Tests {
     test("newEngine bindings - N3Store - bindings ") {
 
       new QueryEngine().queryBindings(
@@ -37,7 +39,7 @@ object QueryEngineTest extends TestSuite {
 
         case Failure(t) =>
           println("An error has occurred: " + t.getMessage)
-          println(t.getStackTrace.foreach(println _))
+          println(t.getStackTrace.foreach(println))
           assert(false)
       }
     }
@@ -46,81 +48,75 @@ object QueryEngineTest extends TestSuite {
         new QueryEngine().queryQuads("CONSTRUCT WHERE { ?s ?p ?o  } LIMIT 100",
           QueryEngineOptions(sources = List(initStore())))
           .toFuture onComplete {
-          case Success(results) => {
+          case Success(results) =>
             results.on("data", (v : Quad) => {
               assert(v.subject.value == "a")
               assert(v.predicate.value == "b")
             })
-          }
           case Failure(t) =>
             println("An error has occurred: " + t.getMessage)
-            println(t.getStackTrace.foreach( println _ ))
+            println(t.getStackTrace.foreach( println ))
             assert(false)
         }
       }
-      /*
-           test("Serializing to a specific result format") {
 
+           test("Serializing to a specific result format") {
              new QueryEngine().query("SELECT * {  ?s ?p ?o . VALUES ?o { <http://dbpedia.org/resource/Belgium> } . } LIMIT 100",
                QueryEngineOptions(sources = List(initStore())))
                .toFuture onComplete {
-               case Success(results: IQueryResult) => {
+               case Success(results) =>
                  val data = new QueryEngine().resultToString(results,"application/sparql-results+json")
                  data.toFuture onComplete {
                    case Success(r) => r.data.pipe( stdout )
                    case Failure(t) => println("message :"+t)
                  }
-               }
                case Failure(t) => println("An error has occurred: " + t.getMessage)
              }
            }
 
-                 test("Serializing to a specific result format 2 ") {
+          test("Serializing to a specific result format 2 ") {
 
-                   new QueryEngine().query("SELECT * {  ?s ?p ?o . VALUES ?o { <http://dbpedia.org/resource/Belgium> } . } LIMIT 100",
-                     QueryEngineOptions(sources = List(initStore())))
-                     .toFuture onComplete {
-                     case Success(results: IQueryResult) => {
-                       val data = new QueryEngine().resultToString(results,"application/sparql-results+json")
-                       data.toFuture onComplete {
-                         case Success(r) => r.data.on( "data" , (chunk : js.Object) => {
-                           println("chunk :" + chunk.toString)
-                         } )
-                         case Failure(t) => println("message :"+t)
-                       }
-                     }
-                     case Failure(t) => println("An error has occurred: " + t.getMessage)
-                   }
-                 }
+            new QueryEngine().query("SELECT * {  ?s ?p ?o . VALUES ?o { <http://dbpedia.org/resource/Belgium> } . } LIMIT 100",
+              QueryEngineOptions(sources = List(initStore())))
+              .toFuture onComplete {
+              case Success(results) =>
+                val data = new QueryEngine().resultToString(results,"application/sparql-results+json")
+                data.toFuture onComplete {
+                  case Success(r) => r.data.on( "data" , (chunk : js.Object) => {
+                    println("chunk :" + chunk.toString)
+                  } )
+                  case Failure(t) => println("message :"+t)
+                }
+              case Failure(t) => println("An error has occurred: " + t.getMessage)
+            }
+          }
 
-                 test("Serializing to a specific result format 3 ") {
+          test("Serializing to a specific result format 3 ") {
 
-                   new QueryEngine().query("SELECT * {  ?s ?p ?o . VALUES ?o { <http://dbpedia.org/resource/Belgium> } . } LIMIT 100",
-                     QueryEngineOptions(sources = List(initStore())))
-                     .toFuture onComplete {
-                     case Success(results: IQueryResult) => {
-                       new QueryEngine().resultToString(results,"application/sparql-results+json")
-                         .toFuture.map( v => {
-                         val p = Promise[String]()
-                         var sparql_results = ""
-                         println("HELLO WORLD !!!!")
-                         v.data.on("data", (chunk: js.Object) => {
-                           println(chunk)
-                           sparql_results += chunk.toString
-                         }).on("end", () => {
-                           p success sparql_results
-                         }).on("error", (error: String) => {
-                           p failure js.JavaScriptException(error)
-                         })
-                         p.future
-                       }).recover(error => {
-                         throw js.JavaScriptException(error.toString)
-                       })
-                     }
-                     case Failure(t) => println("An error has occurred: " + t.getMessage)
-                   }
-                 }
-*/
+            new QueryEngine().query("SELECT * {  ?s ?p ?o . VALUES ?o { <http://dbpedia.org/resource/Belgium> } . } LIMIT 100",
+              QueryEngineOptions(sources = List(initStore())))
+              .toFuture onComplete {
+              case Success(results) =>
+                new QueryEngine().resultToString(results,"application/sparql-results+json")
+                  .toFuture.map( v => {
+                  val p = Promise[String]()
+                  var sparql_results = ""
+                  println("HELLO WORLD !!!!")
+                  v.data.on("data", (chunk: js.Object) => {
+                    println(chunk)
+                    sparql_results += chunk.toString
+                  }).on("end", () => {
+                    p success sparql_results
+                  }).on("error", (error: String) => {
+                    p failure js.JavaScriptException(error)
+                  })
+                  p.future
+                }).recover(error => {
+                  throw js.JavaScriptException(error.toString)
+                })
+              case Failure(t) => println("An error has occurred: " + t.getMessage)
+            }
+          }
 
             test("newEngine bindings - SOURCES = List(N3Store + hypermedia) ") {
               new QueryEngine().queryBindings("SELECT ?s {  ?s ?p ?o . } LIMIT 100",
@@ -137,7 +133,7 @@ object QueryEngineTest extends TestSuite {
 
                   results.on("data", (v : Bindings) => {
                     println("test....................")
-                    println("?s store+hypermedia ->" );
+                    println("?s store+hypermedia ->" )
                     println(v.toString)
                   }).on("end", () => {
                     println(" ======== FIN store+hypermedia ============== ")
@@ -145,7 +141,7 @@ object QueryEngineTest extends TestSuite {
 
                 case Failure(t) =>
                   println("An error has occurred: " + t.getMessage)
-                  println(t.getStackTrace.foreach( println _ ))
+                  println(t.getStackTrace.foreach( println ))
                   assert(false)
               }
             }
