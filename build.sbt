@@ -1,11 +1,12 @@
 import sbt.Keys.{testFrameworks, version}
 
-lazy val comunica_version = "2.6.6"
+lazy val comunica_version = "2.10.2"
 
 def getPackageSetting = Seq(
   name := "comunica-query-sparql",
   version :=  scala.util.Properties.envOrElse("PROG_VERSION", comunica_version),
-  scalaVersion := "2.13.10",
+  scalaVersion := "2.13.12",
+  versionScheme := Some("early-semver"),
   organization := "com.github.p2m2",
   organizationName := "p2m2",
   organizationHomepage := Some(url("https://www6.inrae.fr/p2m2")),
@@ -46,6 +47,7 @@ def getPackageSetting = Seq(
   publishLocalConfiguration := publishLocalConfiguration.value.withOverwrite(true),
   pomIncludeRepository := { _ => false },
   publishMavenStyle := true,
+  publishTo := sonatypePublishToBundle.value,
 )
 
 lazy val root = project.in(file(".")).
@@ -73,11 +75,10 @@ lazy val root = project.in(file(".")).
       "@comunica/query-sparql" ->  comunica_version,
     ),
     libraryDependencies ++= Seq(
-      ("org.scala-js" %%% "scalajs-java-securerandom" % "1.0.0").cross(CrossVersion.for3Use2_13),
-      "org.scala-js" %%% "scala-js-macrotask-executor" % "1.0.0",
-      "net.exoego" %%% "scala-js-nodejs-v14" % "0.14.0",
-      "com.github.p2m2" %%% "n3js" % "1.13.0",
-      "com.lihaoyi" %%% "utest" % "0.7.11" % "test"
+      ("org.scala-js" %%% "scalajs-java-securerandom" % "1.0.0").cross(CrossVersion.for3Use2_13) % "test",
+      "org.scala-js" %%% "scala-js-macrotask-executor" % "1.0.0" % "test",
+      "com.github.p2m2" %%% "n3js" % "v1.17.2",
+      "com.lihaoyi" %%% "utest" % "0.8.2" % "test"
     ) ,
     testFrameworks += new TestFramework("utest.runner.Framework"),
     coverageMinimumStmtTotal := 20,
